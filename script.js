@@ -85,8 +85,17 @@ function Gameboard() {
         }
     };
 
+    const resetBoard = () => {
+        value = "";
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                board[i][j] = value;
+            }
+        }
+    }
 
-    return { getBoard, placeMarker, checkWinner, printBoard };
+
+    return { getBoard, placeMarker, checkWinner, printBoard, resetBoard };
 
 };
 
@@ -108,7 +117,6 @@ function GameController(
     ];
 
     let activePlayer = players[0];
-    let winPlayer = players[0];
     let gameState = "play";
 
     const switchTurnPlayer = (checkMove) => {
@@ -155,6 +163,13 @@ function GameController(
 
     };
 
+    const restart = () => {
+        gameState = 'play'
+        activePlayer = players[0];
+        board.resetBoard();
+        printRound();
+    }
+
     // Start of game
     printRound();
 
@@ -162,6 +177,7 @@ function GameController(
         playRound,
         getActivePlayer,
         getGameState,
+        restart,
         getBoard: board.getBoard
     };
 };
@@ -170,6 +186,7 @@ function ScreenController() {
     const game = GameController();
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
+    const restartBtn = document.querySelector('.reset-btn');
 
     const updateScreen = () => {
 
@@ -220,7 +237,14 @@ function ScreenController() {
         updateScreen();
     }
 
+    function restartClick(event) {
+        game.restart();
+        boardDiv.addEventListener("click", clickHandlerBoard);
+        updateScreen();
+    }
+
     boardDiv.addEventListener("click", clickHandlerBoard);
+    restartBtn.addEventListener("click", restartClick);
     // Initial render
     updateScreen();
 

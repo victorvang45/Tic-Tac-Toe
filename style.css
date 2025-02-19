@@ -1,22 +1,65 @@
-.board {
-    display: grid;
-    height: 500px;
-    width: 500px;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    border: 1px solid black;
-    gap: 2px;
-    padding: 2px;
-    background-color: yellow;
-  }
-  
-  .cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: rgba(49, 57, 78, 1);
+  color: #ccc;
+}
+
+.container {
+    max-width: 1400px;
+    padding: 20px;
+    margin: 0 auto;
     text-align: center;
-    font-size: 2rem;
-    border: 1px solid grey;
-    background: lightyellow;
-    cursor: pointer;
-  }
+
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+
+
+}
+.board {
+  display: grid;
+  height: 500px;
+  width: 500px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border: 1px solid black;
+  gap: 2px;
+  padding: 2px;
+  background-color: yellow;
+}
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 2rem;
+  border: 1px solid grey;
+  background: lightyellow;
+  cursor: pointer;
+}
+
+
+.toggle button {
+  color:white;
+  padding: 12px 40px;
+  border: none;
+  box-shadow: 0.5px 2px 3px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  font-size: 17px;
+}
+
+.reset-btn {
+  transition: background-color 0.3s ease;
+  background-color: rgba(41, 167, 89, 1);
+}
+
+button:hover{
+  transition: background-color 0.3s ease;
+  background-color:rgba(0, 0, 0, 0.1);
+}
