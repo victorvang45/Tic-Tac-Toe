@@ -1,9 +1,9 @@
-// Gameboard
+/// Gameboard
 function Gameboard() {
     const rows = 3;
     const columns = 3;
     const board = [];
-    let value = 0;
+    let value = "";
 
     // Create array to represent the state of the game board
     for (let i = 0; i < rows; i++) {
@@ -19,15 +19,60 @@ function Gameboard() {
     const placeMarker = (row, column, player) => {
         value = player;
 
-        if (board[row][column] === 0) {
+        if (board[row][column] === "") {
             board[row][column] = player;
             return true;
-        } else if (board[row][column] !== 0) {
+        } else if (board[row][column] !== "") {
             console.log('Invalid move!');
             return false;
         }
 
 
+    }
+
+    const checkWinner = () => {
+        const matchMark = (a, b, c) => a !== "" && a === b && b === c;
+
+        //Checks Columns
+        for (let i = 0; i < 3; i++) {
+            const a = board[0][i]
+            const b = board[1][i]
+            const c = board[2][i]
+            if (matchMark(a, b, c)) {
+                console.log("win by column");
+                return "win";
+            }
+        }
+
+        //Checks Rows
+        for (let i = 0; i < 3; i++) {
+            const a = board[i][0];
+            const b = board[i][1];
+            const c = board[i][2];
+            if (matchMark(a, b, c)) {
+                console.log("win by row")
+                return "win";
+            }
+        }
+
+        //Diagonal Checks
+        if (matchMark(board[0][0], board[1][1], board[2][2])) {
+            console.log("win by left diagonal");
+            return "win";
+        }
+
+        if (matchMark(board[0][2], board[1][1], board[2][0])) {
+            console.log("win by right diagonal");
+            return "win";
+        }
+
+        if (board.flat().includes("")) {
+            return "play";
+        }
+        else {
+            console.log("draw");
+            return "draw";
+        }
     }
 
     const printBoard = () => {
@@ -36,12 +81,12 @@ function Gameboard() {
             for (let j = 0; j < board[i].length; j++) {
                 row += board[i][j] + " ";
             }
-            console.log(row);
+
         }
     };
 
 
-    return { getBoard, placeMarker, printBoard };
+    return { getBoard, placeMarker, checkWinner, printBoard };
 
 };
 
@@ -54,42 +99,58 @@ function GameController(
     const players = [
         {
             name: playerOneName,
-            token: 1
+            token: "X"
         },
         {
             name: playerTwoName,
-            token: 2
+            token: "O"
         }
     ];
 
     let activePlayer = players[0];
+    let winPlayer = players[0];
+    let gameState = "play";
 
     const switchTurnPlayer = (checkMove) => {
         // Only switch turn player if the move was valid; otherwise turn player stays the same until valid move is made
-        if (checkMove) {
+        if (checkMove && gameState === "play") {
             activePlayer = activePlayer === players[0] ? players[1] : players[0];
         }
 
     };
 
     const getActivePlayer = () => activePlayer;
-   
+
+
+    const getGameState = () => gameState;
+
+
+
 
     const printRound = () => {
-        board.printBoard();
-        console.log(`${getActivePlayer().name}'s turn.`);
+        if (gameState === 'play') {
+            board.printBoard();
+            console.log(`${getActivePlayer().name}'s turn.`);
+        }
+        else {
+            console.log("Game has ended");
+        }
     }
 
     const playRound = (row, column) => {
         let checkMove = true;
+        console.log(gameState);
 
 
         checkMove = board.placeMarker(row, column, getActivePlayer().token);
 
         // Placing check for winner and winner message
+        gameState = board.checkWinner();
 
-
-        switchTurnPlayer(checkMove);
+        if (gameState === "play") {
+            switchTurnPlayer(checkMove);
+        }
+        // For console use only
         printRound();
 
     };
@@ -100,6 +161,7 @@ function GameController(
     return {
         playRound,
         getActivePlayer,
+        getGameState,
         getBoard: board.getBoard
     };
 };
@@ -114,14 +176,26 @@ function ScreenController() {
 
         // Reset boarddiv content
         boardDiv.textContent = "";
-    
-        // Display turn player on screen
+
         const board = game.getBoard();
-        const activePlayer = game.getActivePlayer();
-    
-        playerTurnDiv.textContent = `${activePlayer.name}'s turn...`
-    
-    
+        // Display message on screen
+        if (game.getGameState() === "play") {
+
+            const activePlayer = game.getActivePlayer();
+            playerTurnDiv.textContent = `${activePlayer.name}'s turn...`
+        }
+        else if (game.getGameState() === "win") {
+            boardDiv.removeEventListener("click", clickHandlerBoard);
+            const activePlayer = game.getActivePlayer();
+            playerTurnDiv.textContent = `${activePlayer.name} won!`
+        }
+        else if (game.getGameState() === "draw") {
+            boardDiv.removeEventListener("click", clickHandlerBoard);
+            playerTurnDiv.textContent = `Game has ended in a draw`
+        }
+
+
+
         // Render board on screen
         board.forEach((row, rowIndex) => {
             row.forEach((token, index) => {
@@ -132,7 +206,7 @@ function ScreenController() {
                 cellButton.textContent = token;
                 boardDiv.appendChild(cellButton);
             })
-        })  
+        })
     }
 
     // Event listener for the board
@@ -141,13 +215,12 @@ function ScreenController() {
         const selectedRow = event.target.dataset.rowNum;
 
         if (!selectedColumn && !selectedRow) return;
-        game.playRound(selectedRow,selectedColumn);
-        
+        game.playRound(selectedRow, selectedColumn);
+
         updateScreen();
     }
 
     boardDiv.addEventListener("click", clickHandlerBoard);
-
     // Initial render
     updateScreen();
 
